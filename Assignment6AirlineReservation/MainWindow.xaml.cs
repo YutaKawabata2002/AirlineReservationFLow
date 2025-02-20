@@ -68,13 +68,13 @@ namespace Assignment6AirlineReservation
                 // Toggle visibility of canvases based on flight type
                 if (selectedFlight.sFlightID == "1")
                 {
-                    Canvas767.Visibility = Visibility.Hidden;
-                    CanvasA380.Visibility = Visibility.Visible;
+                    CanvasA380.Visibility = Visibility.Hidden;
+                    Canvas767.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    CanvasA380.Visibility = Visibility.Hidden;
-                    Canvas767.Visibility = Visibility.Visible;
+                    Canvas767.Visibility = Visibility.Hidden;
+                    CanvasA380.Visibility = Visibility.Visible;
                 }
 
                 // Get passengers for the selected flight and update the passengers combo box
@@ -111,7 +111,7 @@ namespace Assignment6AirlineReservation
 
                 // Determine the canvas for the selected flight
                 clsFlight selectedFlight = (clsFlight)cbChooseFlight.SelectedItem;
-                Canvas seatCanvas = selectedFlight.sFlightID == "1" ? c767_Seats : cA380_Seats;
+                Canvas seatCanvas = selectedFlight.sFlightID == "1" ? cA380_Seats : c767_Seats;
 
                 // Reset all seats to blue (available)
                 foreach (Label seat in seatCanvas.Children.OfType<Label>())
@@ -195,17 +195,18 @@ namespace Assignment6AirlineReservation
                 // Toggle visibility of canvases based on the selected flight
                 if (selectedFlight.sFlightID == "1")
                 {
-                    CanvasA380.Visibility = Visibility.Collapsed;
-                    Canvas767.Visibility = Visibility.Visible;
+                    Canvas767.Visibility = Visibility.Collapsed;
+                    CanvasA380.Visibility = Visibility.Visible;
+
                 }
                 else
                 {
-                    Canvas767.Visibility = Visibility.Collapsed;
-                    CanvasA380.Visibility = Visibility.Visible;
+                    CanvasA380.Visibility = Visibility.Collapsed;
+                    Canvas767.Visibility = Visibility.Visible;
                 }
 
                 // Determine the canvas for the selected flight
-                Canvas seatCanvas = selectedFlight.sFlightID == "1" ? c767_Seats : cA380_Seats;
+                Canvas seatCanvas = selectedFlight.sFlightID == "1" ? cA380_Seats : c767_Seats;
 
                 // Ensure the selected canvas is rendered
                 seatCanvas.UpdateLayout();

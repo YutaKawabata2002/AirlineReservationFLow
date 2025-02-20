@@ -19,22 +19,13 @@ namespace Assignment6AirlineReservation
         {
             try
             {
-                List<clsPassenger> passengers = new List<clsPassenger>();
-
-                // SQL Query to fetch passengers based on the selected FlightID
-                string sSQL = $"SELECT PASSENGER.Passenger_ID, First_Name, Last_Name, Seat_Number " +
-                              $"FROM FLIGHT_PASSENGER_LINK " +
-                              $"INNER JOIN PASSENGER ON FLIGHT_PASSENGER_LINK.PASSENGER_ID = PASSENGER.PASSENGER_ID " +
-                              $"WHERE FLIGHT_PASSENGER_LINK.FLIGHT_ID = {sFlightID}";
-
-                // Create a connection to the database
+                // Execute the SQL query from clsSQL
                 clsDataAccess db = new clsDataAccess();
-
-                // Execute the SQL query
                 int iRetVal = 0;
-                DataSet ds = db.ExecuteSQLStatement(sSQL, ref iRetVal);
+                DataSet ds = db.ExecuteSQLStatement(clsSQL.GetPassengers(sFlightID), ref iRetVal);
 
-                // Populate the list of passengers from the DataSet
+                // Convert DataSet to List of clsPassenger
+                List<clsPassenger> passengers = new List<clsPassenger>();
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
                     passengers.Add(new clsPassenger()
@@ -50,8 +41,7 @@ namespace Assignment6AirlineReservation
             }
             catch (Exception ex)
             {
-                throw new Exception(MethodInfo.GetCurrentMethod().DeclaringType.Name + "." +
-                                    MethodInfo.GetCurrentMethod().Name + " -> " + ex.Message);
+                throw new Exception($"{nameof(clsPassengerManager)}.{nameof(GetPassengers)} -> {ex.Message}");
             }
         }
 
@@ -64,82 +54,50 @@ namespace Assignment6AirlineReservation
         {
             try
             {
-                // SQL to insert a new passenger
-                string insertPassengerSQL = $"INSERT INTO PASSENGER (First_Name, Last_Name) " +
-                                            $"VALUES ('{firstName}', '{lastName}');";
-
                 clsDataAccess db = new clsDataAccess();
-                db.ExecuteNonQuery(insertPassengerSQL);
+
+                // Insert new passenger
+                db.ExecuteNonQuery(clsSQL.InsertPassenger(firstName, lastName));
 
                 // Get the ID of the newly inserted passenger
-                string getPassengerIDSQL = "SELECT MAX(PASSENGER_ID) AS NewPassengerID FROM PASSENGER;";
-                int iRetVal = 0; // Declare iRetVal here
-                DataSet ds = db.ExecuteSQLStatement(getPassengerIDSQL, ref iRetVal);
-
+                int iRetVal = 0;
+                DataSet ds = db.ExecuteSQLStatement(clsSQL.GetLatestPassengerID(), ref iRetVal);
                 string newPassengerID = ds.Tables[0].Rows[0]["NewPassengerID"].ToString();
 
-                // Link the passenger to a flight and assign a seat
-                string linkPassengerSQL = $"INSERT INTO FLIGHT_PASSENGER_LINK (FLIGHT_ID, PASSENGER_ID, SEAT_NUMBER) " +
-                                          $"VALUES ('{flightID}', '{newPassengerID}', '{seatNumber}');";
-
-                db.ExecuteNonQuery(linkPassengerSQL);
+                // Link passenger to flight and assign a seat
+                db.ExecuteNonQuery(clsSQL.LinkPassengerToFlight(flightID, newPassengerID, seatNumber));
             }
             catch (Exception ex)
             {
-                throw new Exception(MethodInfo.GetCurrentMethod().DeclaringType.Name + "." +
-                                    MethodInfo.GetCurrentMethod().Name + " -> " + ex.Message);
+                throw new Exception($"{nameof(clsPassengerManager)}.{nameof(AddPassenger)} -> {ex.Message}");
             }
         }
-
-
-        /// <summary>
-        /// Updates a passenger's seat number
-        /// </summary>
-        /// <param name="passengerID">The passenger ID</param>
-        /// <param name="newSeatNumber">The new seat number</param>
         public static void UpdatePassengerSeat(string passengerID, string newSeatNumber)
         {
             try
             {
-                // If SEAT_NUMBER is numeric, don't use quotes around it
-                string updateSeatSQL = $"UPDATE FLIGHT_PASSENGER_LINK " +
-                                       $"SET SEAT_NUMBER = {newSeatNumber} " + // No quotes for numeric
-                                       $"WHERE PASSENGER_ID = {passengerID};"; // No quotes for numeric IDs
-
                 clsDataAccess db = new clsDataAccess();
-                db.ExecuteNonQuery(updateSeatSQL);
+                db.ExecuteNonQuery(clsSQL.UpdatePassengerSeat(passengerID, newSeatNumber));
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error updating seat: {ex.Message}");
+                throw new Exception($"{nameof(clsPassengerManager)}.{nameof(UpdatePassengerSeat)} -> {ex.Message}");
             }
         }
 
-
-        /// <summary>
-        /// Deletes a passenger from the system
-        /// </summary>
-        /// <param name="passengerID">The passenger ID to delete</param>
         public static void DeletePassenger(string passengerID)
         {
             try
             {
-                // Create an instance of clsDataAccess to execute SQL statements
                 clsDataAccess db = new clsDataAccess();
 
-                // Delete the passenger's link to the flight
-                string deleteLinkSQL = $"DELETE FROM FLIGHT_PASSENGER_LINK WHERE PASSENGER_ID = {passengerID};";
-                int rowsAffectedLink = db.ExecuteNonQuery(deleteLinkSQL);
-
+                int rowsAffectedLink = db.ExecuteNonQuery(clsSQL.DeletePassengerLink(passengerID));
                 if (rowsAffectedLink == 0)
                 {
                     throw new Exception($"No records found in FLIGHT_PASSENGER_LINK for Passenger_ID = {passengerID}.");
                 }
 
-                // Delete the passenger from the PASSENGER table
-                string deletePassengerSQL = $"DELETE FROM PASSENGER WHERE PASSENGER_ID = {passengerID};";
-                int rowsAffectedPassenger = db.ExecuteNonQuery(deletePassengerSQL);
-
+                int rowsAffectedPassenger = db.ExecuteNonQuery(clsSQL.DeletePassenger(passengerID));
                 if (rowsAffectedPassenger == 0)
                 {
                     throw new Exception($"No records found in PASSENGER table for Passenger_ID = {passengerID}.");
@@ -147,11 +105,8 @@ namespace Assignment6AirlineReservation
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error deleting passenger: {ex.Message}");
+                throw new Exception($"{nameof(clsPassengerManager)}.{nameof(DeletePassenger)} -> {ex.Message}");
             }
         }
-
     }
-
-
 }

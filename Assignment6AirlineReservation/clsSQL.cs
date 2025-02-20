@@ -41,18 +41,107 @@ namespace Assignment6AirlineReservation
         {
             try
             {
-                //Get the passengers for Flight ID 1
-                string sSQL = "SELECT PASSENGER.Passenger_ID, First_Name, Last_Name, Seat_Number " +
-                              "FROM FLIGHT_PASSENGER_LINK, FLIGHT, PASSENGER " +
-                          "WHERE FLIGHT.FLIGHT_ID = FLIGHT_PASSENGER_LINK.FLIGHT_ID AND " +
-                          "FLIGHT_PASSENGER_LINK.PASSENGER_ID = PASSENGER.PASSENGER_ID AND " +
-                          "FLIGHT.FLIGHT_ID = 1";
-                return sSQL;
+                return $"SELECT PASSENGER.Passenger_ID, First_Name, Last_Name, Seat_Number " +
+                       $"FROM FLIGHT_PASSENGER_LINK " +
+                       $"INNER JOIN PASSENGER ON FLIGHT_PASSENGER_LINK.PASSENGER_ID = PASSENGER.PASSENGER_ID " +
+                       $"WHERE FLIGHT_PASSENGER_LINK.FLIGHT_ID = {sFlightID}";
             }
             catch (Exception ex)
             {
-                throw new Exception(MethodInfo.GetCurrentMethod().DeclaringType.Name + "." +
-                                    MethodInfo.GetCurrentMethod().Name + " -> " + ex.Message);
+                throw new Exception($"{nameof(clsSQL)}.{nameof(GetPassengers)} -> {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// SQL query for inserting a new passenger
+        /// </summary>
+        public static string InsertPassenger(string firstName, string lastName)
+        {
+            try
+            {
+                return $"INSERT INTO PASSENGER (First_Name, Last_Name) VALUES ('{firstName}', '{lastName}');";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{nameof(clsSQL)}.{nameof(InsertPassenger)} -> {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// SQL query for retrieving the latest passenger ID
+        /// </summary>
+        public static string GetLatestPassengerID()
+        {
+            try
+            {
+                return "SELECT MAX(PASSENGER_ID) AS NewPassengerID FROM PASSENGER;";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{nameof(clsSQL)}.{nameof(GetLatestPassengerID)} -> {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// SQL query for linking a passenger to a flight with a seat assignment
+        /// </summary>
+        public static string LinkPassengerToFlight(string flightID, string passengerID, string seatNumber)
+        {
+            try
+            {
+                return $"INSERT INTO FLIGHT_PASSENGER_LINK (FLIGHT_ID, PASSENGER_ID, SEAT_NUMBER) " +
+                       $"VALUES ('{flightID}', '{passengerID}', '{seatNumber}');";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{nameof(clsSQL)}.{nameof(LinkPassengerToFlight)} -> {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// SQL query for updating a passenger's seat
+        /// </summary>
+        public static string UpdatePassengerSeat(string passengerID, string newSeatNumber)
+        {
+            try
+            {
+                return $"UPDATE FLIGHT_PASSENGER_LINK " +
+                       $"SET SEAT_NUMBER = {newSeatNumber} " +
+                       $"WHERE PASSENGER_ID = {passengerID};";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{nameof(clsSQL)}.{nameof(UpdatePassengerSeat)} -> {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// SQL query for deleting a passenger link from a flight
+        /// </summary>
+        public static string DeletePassengerLink(string passengerID)
+        {
+            try
+            {
+                return $"DELETE FROM FLIGHT_PASSENGER_LINK WHERE PASSENGER_ID = {passengerID};";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{nameof(clsSQL)}.{nameof(DeletePassengerLink)} -> {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// SQL query for deleting a passenger from the system
+        /// </summary>
+        public static string DeletePassenger(string passengerID)
+        {
+            try
+            {
+                return $"DELETE FROM PASSENGER WHERE PASSENGER_ID = {passengerID};";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"{nameof(clsSQL)}.{nameof(DeletePassenger)} -> {ex.Message}");
             }
         }
     }
